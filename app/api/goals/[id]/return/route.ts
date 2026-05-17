@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
-import { sendEmail, EmailTemplates } from "@/lib/notifications"
+import { sendEmail, EmailTemplates, sendTeamsCard, TeamsTemplates } from "@/lib/notifications"
 
 export async function POST(
   request: NextRequest,
@@ -65,10 +65,11 @@ export async function POST(
       where: { id: session.user.id },
       select: { name: true },
     })
-    await sendEmail(
-      goal.employee.email,
-      EmailTemplates.goalReturned(goal.employee.name, goal.title, comment, manager?.name ?? "Your manager")
-    )
+    const mgrName = manager?.name ?? "Your manager"
+    await Promise.all([
+      sendEmail(goal.employee.email, EmailTemplates.goalReturned(goal.employee.name, goal.title, comment, mgrName)),
+      sendTeamsCard(TeamsTemplates.goalReturned(goal.employee.name, goal.title, comment, mgrName)),
+    ])
   })()
 
   return NextResponse.json({

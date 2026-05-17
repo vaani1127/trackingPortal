@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
-import { sendEmail, EmailTemplates } from "@/lib/notifications"
+import { sendEmail, EmailTemplates, sendTeamsCard, TeamsTemplates } from "@/lib/notifications"
 
 export async function POST(
   _request: NextRequest,
@@ -38,16 +38,20 @@ export async function POST(
 
   // Fire-and-forget: notify employee and manager
   void (async () => {
-    await sendEmail(goal.employee.email, EmailTemplates.goalUnlocked(goal.employee.name, goal.title))
+    const sends: Promise<unknown>[] = [
+      sendEmail(goal.employee.email, EmailTemplates.goalUnlocked(goal.employee.name, goal.title)),
+      sendTeamsCard(TeamsTemplates.goalUnlocked(goal.employee.name, goal.title)),
+    ]
     if (goal.employee.managerId) {
       const manager = await prisma.user.findUnique({
         where: { id: goal.employee.managerId },
         select: { email: true, name: true },
       })
       if (manager?.email) {
-        await sendEmail(manager.email, EmailTemplates.goalUnlocked(`${goal.employee.name}'s`, goal.title))
+        sends.push(sendEmail(manager.email, EmailTemplates.goalUnlocked(`${goal.employee.name}'s`, goal.title)))
       }
     }
+    await Promise.all(sends)
   })()
 
   return NextResponse.json({

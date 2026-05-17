@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { prisma } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
-import { sendEmail, EmailTemplates } from "@/lib/notifications"
+import { sendEmail, EmailTemplates, sendTeamsCard, TeamsTemplates } from "@/lib/notifications"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
@@ -104,12 +104,14 @@ export async function POST(request: NextRequest) {
           },
         })
         void sendEmail(emp.email, EmailTemplates.escalationEmployee(emp.name, "goal_not_submitted", daysSince(submitDeadline, now)))
+        void sendTeamsCard(TeamsTemplates.escalationEmployee(emp.name, "goal_not_submitted", daysSince(submitDeadline, now)))
         results.push({ rule: "goal_not_submitted", employee: emp.name, action: "1st notice → employee" })
       } else if (existing.notificationCount === 1 && daysSince(existing.triggeredAt, now) >= 3) {
         // Second notification: email manager
         await prisma.escalation.update({ where: { id: existing.id }, data: { notificationCount: 2 } })
         if (emp.manager.email) {
           void sendEmail(emp.manager.email, EmailTemplates.escalationManager(emp.manager.name, emp.name, "goal_not_submitted"))
+          void sendTeamsCard(TeamsTemplates.escalationManager(emp.manager.name, emp.name, "goal_not_submitted"))
         }
         results.push({ rule: "goal_not_submitted", employee: emp.name, action: "2nd notice → manager" })
       } else if (existing.notificationCount === 2 && daysSince(existing.triggeredAt, now) >= 6) {
@@ -118,6 +120,7 @@ export async function POST(request: NextRequest) {
         for (const admin of admins) {
           void sendEmail(admin.email, EmailTemplates.escalationManager(admin.name, emp.name, "goal_not_submitted"))
         }
+        void sendTeamsCard(TeamsTemplates.escalationManager(admins[0]?.name ?? "Admin", emp.name, "goal_not_submitted"))
         results.push({ rule: "goal_not_submitted", employee: emp.name, action: "3rd notice → admin" })
       }
     }
@@ -166,6 +169,7 @@ export async function POST(request: NextRequest) {
       })
       if (emp.manager.email) {
         void sendEmail(emp.manager.email, EmailTemplates.escalationManager(emp.manager.name, emp.name, "goal_not_approved"))
+        void sendTeamsCard(TeamsTemplates.escalationManager(emp.manager.name, emp.name, "goal_not_approved"))
       }
       results.push({ rule: "goal_not_approved", employee: emp.name, action: "1st notice → manager" })
     } else if (existing.notificationCount === 1 && daysSince(existing.triggeredAt, now) >= 3) {
@@ -173,6 +177,7 @@ export async function POST(request: NextRequest) {
       for (const admin of admins) {
         void sendEmail(admin.email, EmailTemplates.escalationManager(admin.name, emp.name, "goal_not_approved"))
       }
+      void sendTeamsCard(TeamsTemplates.escalationManager(admins[0]?.name ?? "Admin", emp.name, "goal_not_approved"))
       results.push({ rule: "goal_not_approved", employee: emp.name, action: "2nd notice → admin" })
     }
   }
@@ -221,17 +226,13 @@ export async function POST(request: NextRequest) {
             notificationCount: 1,
           },
         })
-        void sendEmail(
-          emp.email,
-          EmailTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now))
-        )
+        void sendEmail(emp.email, EmailTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now)))
+        void sendTeamsCard(TeamsTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now)))
         results.push({ rule: "checkin_missed", employee: emp.name, action: `1st reminder → ${openQ.quarter}` })
       } else if (existing && existing.notificationCount === 1 && daysSince(existing.triggeredAt, now) >= 7) {
         await prisma.escalation.update({ where: { id: existing.id }, data: { notificationCount: 2 } })
-        void sendEmail(
-          emp.email,
-          EmailTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now))
-        )
+        void sendEmail(emp.email, EmailTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now)))
+        void sendTeamsCard(TeamsTemplates.checkinReminder(emp.name, openQ.quarter, daysSince(openQ.opens, now)))
         results.push({ rule: "checkin_missed", employee: emp.name, action: "2nd reminder → employee" })
       }
     }

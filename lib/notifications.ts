@@ -353,7 +353,7 @@ export const EmailTemplates = {
   },
 }
 
-// ─── Send helper ──────────────────────────────────────────────────────────────
+// ─── Send email ───────────────────────────────────────────────────────────────
 
 export async function sendEmail(to: string, template: EmailTemplate): Promise<void> {
   if (!process.env.RESEND_API_KEY) return
@@ -367,5 +367,263 @@ export async function sendEmail(to: string, template: EmailTemplate): Promise<vo
     })
   } catch (err) {
     console.error("[notifications] Email send failed:", err)
+  }
+}
+
+// ─── Teams Adaptive Cards ─────────────────────────────────────────────────────
+
+interface AdaptiveFact { title: string; value: string }
+
+function teamsCard(params: {
+  badge: string
+  badgeStyle: "good" | "attention" | "warning" | "accent"
+  title: string
+  body: string
+  facts: AdaptiveFact[]
+  actionLabel: string
+  actionUrl: string
+}): object {
+  return {
+    type: "message",
+    attachments: [
+      {
+        contentType: "application/vnd.microsoft.card.adaptive",
+        contentUrl: null,
+        content: {
+          $schema: "http://adaptivecards.io/schemas/adaptive-card.json",
+          type: "AdaptiveCard",
+          version: "1.2",
+          body: [
+            {
+              type: "Container",
+              style: "emphasis",
+              bleed: true,
+              items: [
+                {
+                  type: "ColumnSet",
+                  columns: [
+                    {
+                      type: "Column",
+                      width: "stretch",
+                      items: [
+                        {
+                          type: "TextBlock",
+                          text: "⚡ ATOMBERG Performance Portal",
+                          weight: "Bolder",
+                          color: "Accent",
+                          size: "Small",
+                        },
+                      ],
+                    },
+                    {
+                      type: "Column",
+                      width: "auto",
+                      items: [
+                        {
+                          type: "TextBlock",
+                          text: params.badge,
+                          color: params.badgeStyle === "good"
+                            ? "Good"
+                            : params.badgeStyle === "attention"
+                            ? "Attention"
+                            : params.badgeStyle === "warning"
+                            ? "Warning"
+                            : "Accent",
+                          weight: "Bolder",
+                          size: "Small",
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              type: "Container",
+              items: [
+                {
+                  type: "TextBlock",
+                  text: params.title,
+                  weight: "Bolder",
+                  size: "Large",
+                  wrap: true,
+                },
+                {
+                  type: "TextBlock",
+                  text: params.body,
+                  wrap: true,
+                  color: "Default",
+                  spacing: "Small",
+                },
+                {
+                  type: "FactSet",
+                  spacing: "Medium",
+                  facts: params.facts,
+                },
+              ],
+            },
+          ],
+          actions: [
+            {
+              type: "Action.OpenUrl",
+              title: `${params.actionLabel} →`,
+              url: params.actionUrl,
+            },
+          ],
+          msteams: { width: "Full" },
+        },
+      },
+    ],
+  }
+}
+
+export const TeamsTemplates = {
+  goalSubmitted(employee: string, manager: string, goalCount: number) {
+    return teamsCard({
+      badge: "ACTION REQUIRED",
+      badgeStyle: "warning",
+      title: "Goals Submitted for Review",
+      body: `**${employee}** has submitted their goal sheet with **${goalCount} goal${goalCount !== 1 ? "s" : ""}** for this performance cycle. Please review and approve within 5 working days.`,
+      facts: [
+        { title: "Submitted By", value: employee },
+        { title: "Goals", value: `${goalCount} goal${goalCount !== 1 ? "s" : ""}` },
+        { title: "Action", value: "Review & Approve" },
+      ],
+      actionLabel: "Review Goal Sheet",
+      actionUrl: `${PORTAL_URL}/manager/approvals`,
+    })
+  },
+
+  goalApproved(employee: string, managerName: string, cycleName: string) {
+    return teamsCard({
+      badge: "APPROVED ✓",
+      badgeStyle: "good",
+      title: "Your Goals Have Been Approved!",
+      body: `**${managerName}** has reviewed and approved all your goals for **${cycleName}**. Your goals are now locked and the performance cycle is active.`,
+      facts: [
+        { title: "Approved By", value: managerName },
+        { title: "Cycle", value: cycleName },
+        { title: "Status", value: "Goals Locked & Active" },
+      ],
+      actionLabel: "View My Goals",
+      actionUrl: `${PORTAL_URL}/employee/goals`,
+    })
+  },
+
+  goalReturned(employee: string, goalTitle: string, comment: string, managerName: string) {
+    return teamsCard({
+      badge: "REVISION NEEDED",
+      badgeStyle: "attention",
+      title: "Goal Returned for Revision",
+      body: `**${managerName}** has returned your goal **"${goalTitle}"** with feedback. Please revise and resubmit.\n\n> ${comment}`,
+      facts: [
+        { title: "Goal", value: goalTitle },
+        { title: "Returned By", value: managerName },
+      ],
+      actionLabel: "Update Goal",
+      actionUrl: `${PORTAL_URL}/employee/goals`,
+    })
+  },
+
+  goalUnlocked(recipientName: string, goalTitle: string) {
+    return teamsCard({
+      badge: "UNLOCKED",
+      badgeStyle: "accent",
+      title: "Goal Unlocked for Editing",
+      body: `An administrator has unlocked **"${goalTitle}"**. It can now be edited and resubmitted for approval.`,
+      facts: [
+        { title: "Goal", value: goalTitle },
+        { title: "Action", value: "Edit & Resubmit" },
+      ],
+      actionLabel: "Edit Goal",
+      actionUrl: `${PORTAL_URL}/employee/goals`,
+    })
+  },
+
+  escalationEmployee(employee: string, type: string, daysOverdue: number) {
+    const typeLabels: Record<string, string> = {
+      goal_not_submitted: "Goal Sheet Not Submitted",
+      goal_not_approved: "Goals Pending Approval",
+      checkin_missed: "Quarterly Check-in Missed",
+    }
+    const typeActions: Record<string, string> = {
+      goal_not_submitted: `Your goal sheet is **${daysOverdue} day${daysOverdue !== 1 ? "s" : ""} overdue**. Please submit it immediately to avoid further escalation.`,
+      goal_not_approved: "Your submitted goals are still pending manager approval.",
+      checkin_missed: "You have not submitted your quarterly check-in. Please do so immediately.",
+    }
+    return teamsCard({
+      badge: "⚠️ ESCALATION",
+      badgeStyle: "attention",
+      title: typeLabels[type] ?? type,
+      body: `Hi **${employee}**, ${typeActions[type] ?? "Immediate action is required."}`,
+      facts: [
+        { title: "Employee", value: employee },
+        { title: "Issue", value: typeLabels[type] ?? type },
+        { title: "Days Overdue", value: String(daysOverdue) },
+      ],
+      actionLabel: "Take Action Now",
+      actionUrl: `${PORTAL_URL}/employee/goals`,
+    })
+  },
+
+  escalationManager(manager: string, employeeName: string, type: string) {
+    const typeLabels: Record<string, string> = {
+      goal_not_submitted: "Goal Sheet Not Submitted",
+      goal_not_approved: "Goals Pending Your Approval",
+      checkin_missed: "Team Member Missed Check-in",
+    }
+    const typeActions: Record<string, string> = {
+      goal_not_submitted: `**${employeeName}** has not submitted their goal sheet despite reminders. Please follow up directly.`,
+      goal_not_approved: `**${employeeName}**'s goals are awaiting your approval. The approval window has passed.`,
+      checkin_missed: `**${employeeName}** has not submitted their quarterly check-in.`,
+    }
+    return teamsCard({
+      badge: "🚨 TEAM ALERT",
+      badgeStyle: "attention",
+      title: typeLabels[type] ?? type,
+      body: `Hi **${manager}**, ${typeActions[type] ?? "Your team member requires immediate attention."}`,
+      facts: [
+        { title: "Employee", value: employeeName },
+        { title: "Issue", value: typeLabels[type] ?? type },
+      ],
+      actionLabel: "View Team Dashboard",
+      actionUrl: `${PORTAL_URL}/manager/dashboard`,
+    })
+  },
+
+  checkinReminder(employee: string, quarter: string, daysOpen: number) {
+    return teamsCard({
+      badge: "REMINDER",
+      badgeStyle: "warning",
+      title: `${quarter} Check-in Pending`,
+      body: `Hi **${employee}**, the **${quarter} check-in window has been open for ${daysOpen} day${daysOpen !== 1 ? "s" : ""}** and your update hasn't been submitted yet. Please log your progress before the window closes.`,
+      facts: [
+        { title: "Quarter", value: quarter },
+        { title: "Window Open", value: `${daysOpen} day${daysOpen !== 1 ? "s" : ""}` },
+        { title: "Status", value: "Check-in Pending" },
+      ],
+      actionLabel: "Submit Check-in",
+      actionUrl: `${PORTAL_URL}/employee/check-ins`,
+    })
+  },
+}
+
+// ─── Send Teams card ───────────────────────────────────────────────────────────
+
+export async function sendTeamsCard(card: object): Promise<void> {
+  const webhookUrl = process.env.TEAMS_WEBHOOK_URL
+  if (!webhookUrl) return
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(card),
+    })
+    if (!res.ok) {
+      const text = await res.text()
+      console.error(`[notifications] Teams webhook failed ${res.status}:`, text)
+    }
+  } catch (err) {
+    console.error("[notifications] Teams send failed:", err)
   }
 }

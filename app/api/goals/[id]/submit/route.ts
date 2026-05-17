@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
-import { sendEmail, EmailTemplates } from "@/lib/notifications"
+import { sendEmail, EmailTemplates, sendTeamsCard, TeamsTemplates } from "@/lib/notifications"
 
 export async function POST(
   _request: NextRequest,
@@ -81,10 +81,10 @@ export async function POST(
         prisma.user.findUnique({ where: { id: session.user.managerId! }, select: { name: true, email: true } }),
       ])
       if (employee?.name && manager?.email) {
-        await sendEmail(
-          manager.email,
-          EmailTemplates.goalSubmitted(employee.name, manager.name, draftGoals.length)
-        )
+        await Promise.all([
+          sendEmail(manager.email, EmailTemplates.goalSubmitted(employee.name, manager.name, draftGoals.length)),
+          sendTeamsCard(TeamsTemplates.goalSubmitted(employee.name, manager.name, draftGoals.length)),
+        ])
       }
     })()
   }
