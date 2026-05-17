@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import {
   CheckCircle2,
@@ -130,6 +130,7 @@ function AchievementTab({
   defaultCycleId: string
 }) {
   const [cycleId, setCycleId] = useState(defaultCycleId)
+  useEffect(() => { setCycleId(defaultCycleId) }, [defaultCycleId])
   const [selectedQuarters, setSelectedQuarters] = useState<Set<string>>(new Set())
   const [department, setDepartment] = useState("all")
   const [search, setSearch] = useState("")
@@ -414,6 +415,7 @@ function CompletionTab({
   defaultCycleId: string
 }) {
   const [cycleId, setCycleId] = useState(defaultCycleId)
+  useEffect(() => { setCycleId(defaultCycleId) }, [defaultCycleId])
   const [department, setDepartment] = useState("all")
   const [managerId, setManagerId] = useState("all")
 

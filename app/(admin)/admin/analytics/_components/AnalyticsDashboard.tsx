@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   ResponsiveContainer,
   LineChart,
@@ -180,6 +180,9 @@ export function AnalyticsDashboard({
   defaultCycleId,
 }: AnalyticsDashboardProps) {
   const [cycleId, setCycleId] = useState(defaultCycleId)
+  // Sync when the navbar cycle switcher changes (router.refresh re-renders server
+  // component which passes a new defaultCycleId, but useState won't re-initialize)
+  useEffect(() => { setCycleId(defaultCycleId) }, [defaultCycleId])
   const [heatmapDept, setHeatmapDept] = useState("all")
   const [hiddenTrendSeries, setHiddenTrendSeries] = useState<Set<string>>(new Set())
   const [performersTab, setPerformersTab] = useState<"top" | "bottom">("top")

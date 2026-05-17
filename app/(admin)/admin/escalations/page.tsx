@@ -13,6 +13,7 @@ export default async function EscalationsPage() {
   const cycleId = await getSelectedCycleId()
   const [escalations, cycle] = await Promise.all([
     prisma.escalation.findMany({
+      where: cycleId ? { cycleId } : undefined,
       orderBy: { triggeredAt: "desc" },
       take: 200,
       select: {
