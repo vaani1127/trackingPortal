@@ -23,7 +23,7 @@ export default async function GoalsPage({
   const cycle = await prisma.cycle.findFirst({
     where: { status: { not: "archived" } },
     orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, phase1Opens: true, q1Opens: true, q2Opens: true },
+    select: { id: true, name: true, phase1Opens: true, q1Opens: true },
   })
 
   const goals = cycle
@@ -66,7 +66,7 @@ export default async function GoalsPage({
 
   const now = new Date()
   const windowOpen = cycle
-    ? now >= cycle.phase1Opens && now < cycle.q2Opens
+    ? now >= cycle.phase1Opens && now < cycle.q1Opens
     : false
 
   return (

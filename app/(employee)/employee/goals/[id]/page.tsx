@@ -1,7 +1,7 @@
 import { notFound, redirect } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
-import { ChevronLeft, Lock, CheckCircle2, Clock, Circle } from "lucide-react"
+import { ChevronLeft, Lock, CheckCircle2, Clock, Circle, Share2 } from "lucide-react"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { computeScore } from "@/lib/scoring"
@@ -92,6 +92,7 @@ export default async function GoalDetailPage({
 
   const isLocked = goal.status === "locked" || goal.status === "approved"
   const isReturned = goal.status === "returned"
+  const isSharedCopy = goal.isShared && goal.sharedFromId !== null
 
   // Determine current quarter for check-in
   const now = new Date()
@@ -141,6 +142,20 @@ export default async function GoalDetailPage({
             Review the audit log below for manager feedback, update the goal,
             and resubmit.
           </p>
+        </div>
+      )}
+
+      {/* Shared goal banner */}
+      {isSharedCopy && (
+        <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800">
+          <Share2 className="size-4 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium">Shared Goal</p>
+            <p className="mt-0.5 text-blue-700">
+              Title, target, and measurement type are set by your manager and cannot be changed.
+              Only your weightage allocation can be adjusted from the goals list.
+            </p>
+          </div>
         </div>
       )}
 

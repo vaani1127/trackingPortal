@@ -18,20 +18,20 @@ async function main() {
   await prisma.cycle.update({
     where: { id: cycle.id },
     data: {
-      phase1Opens: new Date("2025-11-01"), // goal-setting window opened
-      q1Opens:     new Date("2026-02-01"), // Q1 check-ins started Feb
-      q2Opens:     new Date("2026-08-01"), // Q2 opens Aug — goal-setting window stays open until then
-      q3Opens:     new Date("2026-11-01"),
-      q4Opens:     new Date("2027-02-01"),
+      phase1Opens: new Date("2026-05-01"), // Goal Setting opens May 1, 2026
+      q1Opens:     new Date("2026-07-01"), // Q1 Check-in opens July 1, 2026
+      q2Opens:     new Date("2026-10-01"), // Q2 Check-in opens October 1, 2026
+      q3Opens:     new Date("2027-01-01"), // Q3 Check-in opens January 1, 2027
+      q4Opens:     new Date("2027-03-01"), // Q4/Annual opens March 1, 2027
     },
   })
 
-  console.log("Done. Cycle dates updated:")
-  console.log("  phase1Opens → Nov 1, 2025 (goal-setting started)")
-  console.log("  q1Opens     → Feb 1, 2026 (Q1 check-ins — Q1 data valid)")
-  console.log("  q2Opens     → Aug 1, 2026 (goal-setting window closes then)")
-  console.log("  q3Opens     → Nov 1, 2026")
-  console.log("  q4Opens     → Feb 1, 2027")
+  console.log("Done. Cycle dates updated (per spec):")
+  console.log("  phase1Opens → May 1, 2026    (Goal Setting opens)")
+  console.log("  q1Opens     → Jul 1, 2026    (Q1 Check-in opens)")
+  console.log("  q2Opens     → Oct 1, 2026    (Q2 Check-in opens)")
+  console.log("  q3Opens     → Jan 1, 2027    (Q3 Check-in opens)")
+  console.log("  q4Opens     → Mar 1, 2027    (Q4/Annual opens)")
 }
 
 main()

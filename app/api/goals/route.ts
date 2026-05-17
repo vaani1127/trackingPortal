@@ -80,14 +80,14 @@ export async function POST(request: NextRequest) {
   // Check cycle exists and employee has access
   const cycle = await prisma.cycle.findUnique({
     where: { id: data.cycleId },
-    select: { id: true, status: true, phase1Opens: true, q2Opens: true },
+    select: { id: true, status: true, phase1Opens: true, q1Opens: true },
   })
 
   if (!cycle) {
     return NextResponse.json({ error: "Cycle not found" }, { status: 404 })
   }
 
-  // Check goal setting window (phase1Opens to q2Opens)
+  // Goal setting window: phase1Opens → q1Opens (closes when Q1 check-in begins)
   const now = new Date()
   if (now < cycle.phase1Opens) {
     return NextResponse.json(
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     )
   }
-  if (now >= cycle.q2Opens) {
+  if (now >= cycle.q1Opens) {
     return NextResponse.json(
       { error: "Goal setting window is closed" },
       { status: 400 }

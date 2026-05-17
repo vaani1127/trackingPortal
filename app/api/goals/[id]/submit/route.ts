@@ -26,7 +26,7 @@ export async function POST(
   // Rule 4: must be within the goal-setting phase window
   const cycle = await prisma.cycle.findUnique({
     where: { id: goal.cycleId },
-    select: { phase1Opens: true, q1Opens: true, q2Opens: true },
+    select: { phase1Opens: true, q1Opens: true },
   })
   if (!cycle) {
     return NextResponse.json({ error: "Cycle not found" }, { status: 404 })
@@ -35,7 +35,7 @@ export async function POST(
   if (now < cycle.phase1Opens) {
     return NextResponse.json({ error: "Goal setting window has not opened yet" }, { status: 400 })
   }
-  if (now >= cycle.q2Opens) {
+  if (now >= cycle.q1Opens) {
     return NextResponse.json({ error: "Goal setting window is closed" }, { status: 400 })
   }
 

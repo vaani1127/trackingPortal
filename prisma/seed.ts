@@ -181,11 +181,11 @@ async function main() {
   const cycle = await prisma.cycle.create({
     data: {
       name: "FY 2026-27",
-      phase1Opens: d("2025-11-01"),
-      q1Opens: d("2026-02-01"),
-      q2Opens: d("2026-05-01"),
-      q3Opens: d("2026-08-01"),
-      q4Opens: d("2026-11-01"),
+      phase1Opens: d("2026-05-01"), // Goal Setting opens May 1, 2026
+      q1Opens:     d("2026-07-01"), // Q1 Check-in opens July 1, 2026
+      q2Opens:     d("2026-10-01"), // Q2 Check-in opens October 1, 2026
+      q3Opens:     d("2027-01-01"), // Q3 Check-in opens January 1, 2027
+      q4Opens:     d("2027-03-01"), // Q4/Annual opens March 1, 2027
       status: "active",
       createdById: admin.id,
     },
@@ -200,11 +200,11 @@ async function main() {
   // PRIYA PATEL — all goals approved, Q1+Q2 on-track (star performer)
   // ────────────────────────────────────────────────────────────────────────────
   const priyaGoals = await Promise.all([
-    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Revenue Growth", title: "Achieve ₹5 Crore Annual Revenue Target", description: "Meet or exceed annual sales revenue through new and existing accounts.", uomType: UomType.max_numeric, targetValue: 50000000, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Customer Success", title: "Maintain 90% Customer Retention Rate", description: "Ensure renewal rates remain at or above 90% through proactive engagement.", uomType: UomType.max_percent, targetValue: 90, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Revenue Growth", title: "Onboard 10 New Enterprise Clients", description: "Identify, qualify, and close 10 new enterprise-level clients.", uomType: UomType.max_numeric, targetValue: 10, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Customer Success", title: "Improve Average NPS Score to 8+", description: "Drive satisfaction initiatives to achieve Net Promoter Score of 8+.", uomType: UomType.max_numeric, targetValue: 8, weightage: 10, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "People Development", title: "Complete Advanced Product Certification", description: "Finish all required product knowledge certifications by Q2.", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 5, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Sales", title: "Achieve ₹5 Crore Annual Revenue Target", description: "Meet or exceed annual sales revenue through new and existing accounts.", uomType: UomType.max_numeric, targetValue: 50000000, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Customer", title: "Maintain 90% Customer Retention Rate", description: "Ensure renewal rates remain at or above 90% through proactive engagement.", uomType: UomType.max_percent, targetValue: 90, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Sales", title: "Onboard 10 New Enterprise Clients", description: "Identify, qualify, and close 10 new enterprise-level clients.", uomType: UomType.max_numeric, targetValue: 10, weightage: 25, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "Customer", title: "Improve Average NPS Score to 8+", description: "Drive satisfaction initiatives to achieve Net Promoter Score of 8+.", uomType: UomType.max_numeric, targetValue: 8, weightage: 10, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: priya.id, cycleId: CID, thrustArea: "People", title: "Complete Advanced Product Certification", description: "Finish all required product knowledge certifications by Q2.", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 5, status: GoalStatus.approved, lockedById: rahul.id, lockedAt: LOCKED_AT }),
   ])
 
   for (const g of priyaGoals) {
@@ -258,9 +258,9 @@ async function main() {
   // AMIT KUMAR — goals returned by manager (reworking)
   // ────────────────────────────────────────────────────────────────────────────
   const amitGoals = await Promise.all([
-    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Revenue Growth", title: "Achieve ₹8 Crore Annual Revenue Target", description: "Stretch revenue target for FY 2025-26.", uomType: UomType.max_numeric, targetValue: 80000000, weightage: 40, status: GoalStatus.returned }),
-    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Customer Success", title: "Onboard 15 New Enterprise Clients", description: "Aggressive client acquisition target.", uomType: UomType.max_numeric, targetValue: 15, weightage: 35, status: GoalStatus.returned }),
-    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Customer Success", title: "Achieve 95% Customer Retention", description: "Best-in-class retention through dedicated success programs.", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.returned }),
+    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Sales", title: "Achieve ₹8 Crore Annual Revenue Target", description: "Stretch revenue target for FY 2025-26.", uomType: UomType.max_numeric, targetValue: 80000000, weightage: 40, status: GoalStatus.returned }),
+    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Customer", title: "Onboard 15 New Enterprise Clients", description: "Aggressive client acquisition target.", uomType: UomType.max_numeric, targetValue: 15, weightage: 35, status: GoalStatus.returned }),
+    createGoal({ employeeId: amit.id, cycleId: CID, thrustArea: "Customer", title: "Achieve 95% Customer Retention", description: "Best-in-class retention through dedicated success programs.", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.returned }),
   ])
 
   for (const g of amitGoals) {
@@ -275,10 +275,10 @@ async function main() {
   // KAVYA SHARMA — goals submitted, awaiting approval
   // ────────────────────────────────────────────────────────────────────────────
   const kavyaGoals = await Promise.all([
-    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Revenue Growth", title: "Achieve ₹4 Crore Annual Revenue Target", uomType: UomType.max_numeric, targetValue: 40000000, weightage: 35, status: GoalStatus.submitted }),
-    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Customer Success", title: "Maintain 88% Customer Retention Rate", uomType: UomType.max_percent, targetValue: 88, weightage: 30, status: GoalStatus.submitted }),
-    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Revenue Growth", title: "Onboard 8 New Enterprise Clients", uomType: UomType.max_numeric, targetValue: 8, weightage: 25, status: GoalStatus.submitted }),
-    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "People Development", title: "Complete Sales Methodology Certification", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 10, status: GoalStatus.submitted }),
+    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Sales", title: "Achieve ₹4 Crore Annual Revenue Target", uomType: UomType.max_numeric, targetValue: 40000000, weightage: 35, status: GoalStatus.submitted }),
+    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Customer", title: "Maintain 88% Customer Retention Rate", uomType: UomType.max_percent, targetValue: 88, weightage: 30, status: GoalStatus.submitted }),
+    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "Sales", title: "Onboard 8 New Enterprise Clients", uomType: UomType.max_numeric, targetValue: 8, weightage: 25, status: GoalStatus.submitted }),
+    createGoal({ employeeId: kavya.id, cycleId: CID, thrustArea: "People", title: "Complete Sales Methodology Certification", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 10, status: GoalStatus.submitted }),
   ])
   for (const g of kavyaGoals) {
     await auditCreated(g.id, kavya.id, "2026-04-12")
@@ -289,10 +289,10 @@ async function main() {
   // ROHAN MEHTA — approved, Q1 done, Q2 pending
   // ────────────────────────────────────────────────────────────────────────────
   const rohanGoals = await Promise.all([
-    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Reduce Operational Costs by 15%", uomType: UomType.min_percent, targetValue: 15, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Improve Process Throughput Efficiency by 20%", uomType: UomType.max_percent, targetValue: 20, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Achieve ISO 9001:2015 Quality Certification", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 25, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "People Development", title: "Complete Lean Six Sigma Green Belt", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 15, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operations", title: "Reduce Operational Costs by 15%", uomType: UomType.min_percent, targetValue: 15, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operations", title: "Improve Process Throughput Efficiency by 20%", uomType: UomType.max_percent, targetValue: 20, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "Operations", title: "Achieve ISO 9001:2015 Quality Certification", uomType: UomType.timeline, targetDate: d("2026-09-30"), weightage: 25, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: rohan.id, cycleId: CID, thrustArea: "People", title: "Complete Lean Six Sigma Green Belt", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 15, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
   ])
   for (const g of rohanGoals) {
     await auditCreated(g.id, rohan.id, "2025-05-08")
@@ -321,10 +321,10 @@ async function main() {
   // ANITA DESAI — approved, behind on Q2
   // ────────────────────────────────────────────────────────────────────────────
   const anitaGoals = await Promise.all([
-    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Reduce Operational Costs by 12%", uomType: UomType.min_percent, targetValue: 12, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Implement Automated Reporting Dashboard", description: "Deploy real-time ops dashboard using Power BI with ERP integration.", uomType: UomType.zero, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Improve Supplier On-Time Delivery to 95%", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "People Development", title: "Complete Supply Chain Analytics Course", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 15, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operations", title: "Reduce Operational Costs by 12%", uomType: UomType.min_percent, targetValue: 12, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operations", title: "Implement Automated Reporting Dashboard", description: "Deploy real-time ops dashboard using Power BI with ERP integration.", uomType: UomType.zero, weightage: 30, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "Operations", title: "Improve Supplier On-Time Delivery to 95%", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: anita.id, cycleId: CID, thrustArea: "People", title: "Complete Supply Chain Analytics Course", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 15, status: GoalStatus.approved, lockedById: neha.id, lockedAt: LOCKED_AT }),
   ])
   for (const g of anitaGoals) {
     await auditCreated(g.id, anita.id, "2025-05-09")
@@ -368,9 +368,9 @@ async function main() {
   // DEV GUPTA — goals in draft (escalation scenario, day 8+)
   // ────────────────────────────────────────────────────────────────────────────
   const devGoals = await Promise.all([
-    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Streamline Warehouse Inventory Process", uomType: UomType.max_percent, targetValue: 25, weightage: 40, status: GoalStatus.draft }),
-    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Reduce Equipment Downtime by 30%", uomType: UomType.min_percent, targetValue: 30, weightage: 35, status: GoalStatus.draft }),
-    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "People Development", title: "Complete Safety Compliance Training", uomType: UomType.zero, weightage: 25, status: GoalStatus.draft }),
+    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "Operations", title: "Streamline Warehouse Inventory Process", uomType: UomType.max_percent, targetValue: 25, weightage: 40, status: GoalStatus.draft }),
+    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "Operations", title: "Reduce Equipment Downtime by 30%", uomType: UomType.min_percent, targetValue: 30, weightage: 35, status: GoalStatus.draft }),
+    createGoal({ employeeId: dev.id, cycleId: CID, thrustArea: "People", title: "Complete Safety Compliance Training", uomType: UomType.zero, weightage: 25, status: GoalStatus.draft }),
   ])
   for (const g of devGoals) {
     await auditCreated(g.id, dev.id, "2026-04-10")
@@ -391,10 +391,10 @@ async function main() {
   // SANA KHAN — excellent Q1+Q2 performer
   // ────────────────────────────────────────────────────────────────────────────
   const sanaGoals = await Promise.all([
-    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Product Development", title: "Complete Platform Architecture Redesign", uomType: UomType.max_percent, targetValue: 100, weightage: 30, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Product Development", title: "Achieve 95% Automated Test Coverage", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Reduce Average API Response Time to Under 200ms", uomType: UomType.min_numeric, targetValue: 200, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "People Development", title: "Obtain AWS Solutions Architect Associate Certification", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Technology", title: "Complete Platform Architecture Redesign", uomType: UomType.max_percent, targetValue: 100, weightage: 30, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Technology", title: "Achieve 95% Automated Test Coverage", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "Operations", title: "Reduce Average API Response Time to Under 200ms", uomType: UomType.min_numeric, targetValue: 200, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: sana.id, cycleId: CID, thrustArea: "People", title: "Obtain AWS Solutions Architect Associate Certification", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
   ])
   for (const g of sanaGoals) {
     await auditCreated(g.id, sana.id, "2025-05-08")
@@ -440,7 +440,7 @@ async function main() {
   const sharedTemplate = await createGoal({
     employeeId: raj.id,
     cycleId: CID,
-    thrustArea: "Customer Success",
+    thrustArea: "Customer",
     title: "Zero Customer Escalations — Q2",
     description: "Team KPI: achieve zero unresolved customer escalations across the Technology team in Q2.",
     uomType: UomType.zero,
@@ -453,14 +453,14 @@ async function main() {
 
   // ─── RAJ IYER — personal goals + shared goal copy ───────────────────────────
   const rajPersonal = await Promise.all([
-    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Product Development", title: "Lead API Gateway Migration to GraphQL", uomType: UomType.max_percent, targetValue: 100, weightage: 35, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Product Development", title: "Achieve 95% Automated Test Coverage", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Operational Excellence", title: "Reduce Deployment Lead Time to Under 2 Hours", uomType: UomType.min_numeric, targetValue: 2, weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Technology", title: "Lead API Gateway Migration to GraphQL", uomType: UomType.max_percent, targetValue: 100, weightage: 35, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Technology", title: "Achieve 95% Automated Test Coverage", uomType: UomType.max_percent, targetValue: 95, weightage: 25, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: raj.id, cycleId: CID, thrustArea: "Operations", title: "Reduce Deployment Lead Time to Under 2 Hours", uomType: UomType.min_numeric, targetValue: 2, weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
   ])
   const rajShared = await createGoal({
     employeeId: raj.id,
     cycleId: CID,
-    thrustArea: "Customer Success",
+    thrustArea: "Customer",
     title: "Zero Customer Escalations — Q2",
     description: "Team KPI: zero unresolved customer escalations across the Technology team.",
     uomType: UomType.zero,
@@ -502,14 +502,14 @@ async function main() {
 
   // ─── MEERA NAIR — personal goals + shared goal copy ─────────────────────────
   const meeraPersonal = await Promise.all([
-    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "Product Development", title: "Build Real-Time Analytics Pipeline", uomType: UomType.max_percent, targetValue: 100, weightage: 35, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "Product Development", title: "Implement End-to-End CI/CD Pipeline", uomType: UomType.zero, weightage: 30, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
-    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "People Development", title: "Obtain Google Cloud Professional Data Engineer Certificate", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "Technology", title: "Build Real-Time Analytics Pipeline", uomType: UomType.max_percent, targetValue: 100, weightage: 35, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "Technology", title: "Implement End-to-End CI/CD Pipeline", uomType: UomType.zero, weightage: 30, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
+    createGoal({ employeeId: meera.id, cycleId: CID, thrustArea: "People", title: "Obtain Google Cloud Professional Data Engineer Certificate", uomType: UomType.timeline, targetDate: d("2026-12-31"), weightage: 20, status: GoalStatus.approved, lockedById: arjun.id, lockedAt: LOCKED_AT }),
   ])
   const meeraShared = await createGoal({
     employeeId: meera.id,
     cycleId: CID,
-    thrustArea: "Customer Success",
+    thrustArea: "Customer",
     title: "Zero Customer Escalations — Q2",
     description: "Team KPI: zero unresolved customer escalations across the Technology team.",
     uomType: UomType.zero,

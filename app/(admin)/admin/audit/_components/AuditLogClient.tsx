@@ -2,9 +2,11 @@
 
 import { useState, useMemo } from "react"
 import { format, parseISO, isAfter, isBefore, startOfDay, endOfDay } from "date-fns"
-import { ChevronDown, ChevronRight, Lock } from "lucide-react"
+import { ChevronDown, ChevronRight, Lock, LockOpen, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -36,6 +38,7 @@ interface AuditLogClientProps {
   users: { id: string; name: string }[]
 }
 
+
 const ACTION_LABELS: Record<string, string> = {
   created: "Created",
   updated: "Updated",
@@ -60,9 +63,37 @@ const ACTION_COLORS: Record<string, string> = {
 
 // ─── Expandable row ───────────────────────────────────────────────────────────
 
-function LogRow({ row }: { row: AuditRow }) {
+function LogRow({
+  row,
+  onUnlocked,
+}: {
+  row: AuditRow
+  onUnlocked: (goalId: string) => void
+}) {
   const [expanded, setExpanded] = useState(false)
+  const [unlocking, setUnlocking] = useState(false)
   const isLocked = row.action === "locked"
+  const canUnlock =
+    row.goalId !== null &&
+    (row.goalStatus === "approved" || row.goalStatus === "locked")
+
+  async function handleUnlock(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!row.goalId) return
+    setUnlocking(true)
+    try {
+      const res = await fetch(`/api/goals/${row.goalId}/unlock`, { method: "POST" })
+      if (!res.ok) {
+        const err = await res.json()
+        toast.error(err.error ?? "Unlock failed")
+        return
+      }
+      toast.success(`Goal unlocked — returned to draft`)
+      onUnlocked(row.goalId)
+    } finally {
+      setUnlocking(false)
+    }
+  }
 
   return (
     <>
@@ -177,6 +208,30 @@ function LogRow({ row }: { row: AuditRow }) {
                   )}
                 </div>
               )}
+
+              {/* Admin unlock action */}
+              {canUnlock && (
+                <div className="border-t pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={unlocking}
+                    onClick={handleUnlock}
+                    className="h-7 text-xs gap-1.5 border-amber-300 text-amber-700 hover:bg-amber-50"
+                  >
+                    {unlocking ? (
+                      <Loader2 className="size-3 animate-spin" />
+                    ) : (
+                      <LockOpen className="size-3" />
+                    )}
+                    Unlock Goal (return to draft)
+                  </Button>
+                  <p className="text-muted-foreground mt-1 text-[10px]">
+                    Returns this goal to draft status so the employee can edit and resubmit.
+                    An audit entry will be created.
+                  </p>
+                </div>
+              )}
             </div>
           </td>
         </tr>
@@ -187,12 +242,21 @@ function LogRow({ row }: { row: AuditRow }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export function AuditLogClient({ logs, users }: AuditLogClientProps) {
+export function AuditLogClient({ logs: initialLogs, users }: AuditLogClientProps) {
+  const [logs, setLogs] = useState(initialLogs)
   const [userId, setUserId] = useState("all")
   const [actionType, setActionType] = useState("all")
   const [goalSearch, setGoalSearch] = useState("")
   const [dateFrom, setDateFrom] = useState("")
   const [dateTo, setDateTo] = useState("")
+
+  function handleUnlocked(goalId: string) {
+    setLogs((prev) =>
+      prev.map((l) =>
+        l.goalId === goalId ? { ...l, goalStatus: "draft" } : l
+      )
+    )
+  }
 
   const filtered = useMemo(() => {
     return logs.filter((l) => {
@@ -297,7 +361,7 @@ export function AuditLogClient({ logs, users }: AuditLogClientProps) {
               </tr>
             )}
             {filtered.map((row) => (
-              <LogRow key={row.id} row={row} />
+              <LogRow key={row.id} row={row} onUnlocked={handleUnlocked} />
             ))}
           </tbody>
         </table>
