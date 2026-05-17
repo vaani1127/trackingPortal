@@ -41,11 +41,13 @@ export function CycleSwitcher() {
     router.refresh()
   }
 
+  const selectedName = cycles.find((c) => c.id === selectedId)?.name ?? "Select year"
+
   return (
     <Select value={selectedId} onValueChange={handleChange}>
       <SelectTrigger className="h-8 w-[130px] text-xs gap-1.5 border-border">
         <CalendarRange className="size-3 text-muted-foreground flex-shrink-0" />
-        <SelectValue placeholder="Select year" />
+        <span className="truncate">{selectedName}</span>
       </SelectTrigger>
       <SelectContent align="end">
         {cycles.map((c) => (

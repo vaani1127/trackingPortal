@@ -18,6 +18,7 @@
     "db:fix-scores": "ts-node --project tsconfig.seed.json prisma/fix-scores.ts",
     "db:fix-thrust-areas": "ts-node --project tsconfig.seed.json prisma/fix-thrust-areas.ts",
     "db:seed-fy2526": "ts-node --project tsconfig.seed.json prisma/seed-fy2526.ts",
+    "db:seed-complete": "ts-node --project tsconfig.seed.json prisma/seed-complete.ts",
     "test": "jest"
   },
   "dependencies": {
