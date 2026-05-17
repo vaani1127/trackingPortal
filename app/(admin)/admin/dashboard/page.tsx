@@ -97,15 +97,27 @@ export default async function AdminDashboardPage() {
     }),
   ])
 
-  // Check-in stats
-  let checkinStats = { done: 0, total: 0 }
+  // Check-in stats — use the latest quarter that has any check-in data,
+  // falling back to the date-based current quarter if no data exists yet.
+  let checkinStats = { done: 0, total: 0, quarter: null as string | null }
   if (cycle) {
     const now = new Date()
-    let currentQ: "Q1" | "Q2" | "Q3" | "Q4" | null = null
-    if (now >= cycle.q4Opens) currentQ = "Q4"
-    else if (now >= cycle.q3Opens) currentQ = "Q3"
-    else if (now >= cycle.q2Opens) currentQ = "Q2"
-    else if (now >= cycle.q1Opens) currentQ = "Q1"
+    // Determine current quarter by date
+    let dateQ: "Q1" | "Q2" | "Q3" | "Q4" | null = null
+    if (now >= cycle.q4Opens) dateQ = "Q4"
+    else if (now >= cycle.q3Opens) dateQ = "Q3"
+    else if (now >= cycle.q2Opens) dateQ = "Q2"
+    else if (now >= cycle.q1Opens) dateQ = "Q1"
+
+    // Find the latest quarter that actually has check-in data for this cycle
+    const latestCheckin = await prisma.checkin.findFirst({
+      where: { goal: { cycleId: cycle.id } },
+      orderBy: { createdAt: "desc" },
+      select: { quarter: true },
+    })
+
+    const currentQ: "Q1" | "Q2" | "Q3" | "Q4" | null =
+      latestCheckin?.quarter ?? dateQ
 
     if (currentQ) {
       const [empWithApprovedGoals, empWithCheckins] = await Promise.all([
@@ -117,16 +129,13 @@ export default async function AdminDashboardPage() {
         }),
         prisma.checkin
           .findMany({
-            where: {
-              quarter: currentQ,
-              goal: { cycleId: cycle.id },
-            },
+            where: { quarter: currentQ, goal: { cycleId: cycle.id } },
             select: { employeeId: true },
             distinct: ["employeeId"],
           })
           .then((r) => r.length),
       ])
-      checkinStats = { done: empWithCheckins, total: empWithApprovedGoals }
+      checkinStats = { done: empWithCheckins, total: empWithApprovedGoals, quarter: currentQ }
     }
   }
 
@@ -215,7 +224,7 @@ export default async function AdminDashboardPage() {
         />
         <StatCard
           icon={<TrendingUp className="size-5 text-purple-500" />}
-          label="Check-in Rate"
+          label={`Check-in Rate${checkinStats.quarter ? ` (${checkinStats.quarter})` : ""}`}
           value={
             checkinStats.total > 0
               ? `${Math.round((checkinStats.done / checkinStats.total) * 100)}%`
@@ -224,7 +233,7 @@ export default async function AdminDashboardPage() {
           sub={
             checkinStats.total > 0
               ? `${checkinStats.done}/${checkinStats.total} employees`
-              : "No open window"
+              : "No check-in data yet"
           }
           bg="bg-purple-50"
         />

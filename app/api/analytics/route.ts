@@ -113,13 +113,14 @@ export async function GET(request: NextRequest) {
           continue
         }
         const opens = qOpens[q]
-        if (now < opens) {
-          data[`${emp.id}|${q}`] = "na"
-          continue
-        }
         const checkedGoals = approvedGoals.filter((g) =>
           g.checkins.some((c) => c.quarter === q)
         ).length
+        // Only mark "na" when window hasn't opened AND there's no data yet
+        if (now < opens && checkedGoals === 0) {
+          data[`${emp.id}|${q}`] = "na"
+          continue
+        }
         if (checkedGoals === 0) {
           data[`${emp.id}|${q}`] = "missing"
         } else if (checkedGoals >= approvedGoals.length) {
