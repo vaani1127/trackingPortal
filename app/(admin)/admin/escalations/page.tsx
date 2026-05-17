@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { EscalationsClient } from "./_components/EscalationsClient"
 
 export const metadata = { title: "Escalations — Atomberg Portal" }
@@ -9,6 +10,7 @@ export default async function EscalationsPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
+  const cycleId = await getSelectedCycleId()
   const [escalations, cycle] = await Promise.all([
     prisma.escalation.findMany({
       orderBy: { triggeredAt: "desc" },
@@ -26,10 +28,9 @@ export default async function EscalationsPage() {
         cycle: { select: { name: true } },
       },
     }),
-    prisma.cycle.findFirst({
-      where: { status: "active" },
-      select: { id: true, name: true },
-    }),
+    cycleId
+      ? prisma.cycle.findUnique({ where: { id: cycleId }, select: { id: true, name: true } })
+      : Promise.resolve(null),
   ])
 
   const serialized = escalations.map((e) => ({

@@ -17,6 +17,7 @@
     "db:fix-weightage": "ts-node --project tsconfig.seed.json prisma/fix-weightage.ts",
     "db:fix-scores": "ts-node --project tsconfig.seed.json prisma/fix-scores.ts",
     "db:fix-thrust-areas": "ts-node --project tsconfig.seed.json prisma/fix-thrust-areas.ts",
+    "db:seed-fy2526": "ts-node --project tsconfig.seed.json prisma/seed-fy2526.ts",
     "test": "jest"
   },
   "dependencies": {

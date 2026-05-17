@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getSession } from "@/lib/auth"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 
 export async function GET() {
   const session = await getSession()
@@ -8,9 +9,11 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
+  const cycleId = await getSelectedCycleId()
+  if (!cycleId) return NextResponse.json(null)
+
+  const cycle = await prisma.cycle.findUnique({
+    where: { id: cycleId },
     select: {
       id: true,
       name: true,
@@ -23,9 +26,5 @@ export async function GET() {
     },
   })
 
-  if (!cycle) {
-    return NextResponse.json(null)
-  }
-
-  return NextResponse.json(cycle)
+  return NextResponse.json(cycle ?? null)
 }

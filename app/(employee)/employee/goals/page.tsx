@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Plus, Target } from "lucide-react"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { GoalsList } from "./_components/GoalsList"
 import { Button } from "@/components/ui/button"
 
@@ -20,11 +21,13 @@ export default async function GoalsPage({
 
   const params = await searchParams
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, name: true, phase1Opens: true, q1Opens: true },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: { id: true, name: true, phase1Opens: true, q1Opens: true },
+      })
+    : null
 
   const goals = cycle
     ? await prisma.goal.findMany({

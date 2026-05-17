@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { CheckinContent } from "./_components/CheckinContent"
 
 export const metadata = { title: "Check-ins — Atomberg Portal" }
@@ -9,18 +10,20 @@ export default async function CheckInsPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      q1Opens: true,
-      q2Opens: true,
-      q3Opens: true,
-      q4Opens: true,
-    },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: {
+          id: true,
+          name: true,
+          q1Opens: true,
+          q2Opens: true,
+          q3Opens: true,
+          q4Opens: true,
+        },
+      })
+    : null
 
   const directReports = await prisma.user.findMany({
     where: { managerId: session.user.id },

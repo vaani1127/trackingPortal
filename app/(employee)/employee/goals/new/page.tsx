@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import GoalCreateForm from "./_components/GoalCreateForm"
 
 export const metadata = { title: "New Goal — Atomberg Portal" }
@@ -9,16 +10,18 @@ export default async function NewGoalPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      phase1Opens: true,
-      q1Opens: true,
-    },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: {
+          id: true,
+          name: true,
+          phase1Opens: true,
+          q1Opens: true,
+        },
+      })
+    : null
 
   if (!cycle) {
     return (

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { ReportsClient } from "./_components/ReportsClient"
 
 export const metadata = { title: "Reports — Atomberg Portal" }
@@ -36,6 +37,8 @@ export default async function ReportsPage() {
     .map(([id, name]) => ({ id, name }))
     .sort((a, b) => a.name.localeCompare(b.name))
 
+  const selectedCycleId = await getSelectedCycleId()
+
   return (
     <div className="space-y-4">
       <div>
@@ -48,7 +51,7 @@ export default async function ReportsPage() {
         cycles={cycles}
         departments={departments}
         managers={managers}
-        defaultCycleId={cycles[0]?.id ?? ""}
+        defaultCycleId={selectedCycleId ?? cycles[0]?.id ?? ""}
       />
     </div>
   )

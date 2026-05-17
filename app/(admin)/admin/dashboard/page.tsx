@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { Users, ClipboardCheck, TrendingUp, AlertCircle, CheckCircle2, Clock } from "lucide-react"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -49,18 +50,20 @@ export default async function AdminDashboardPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      q1Opens: true,
-      q2Opens: true,
-      q3Opens: true,
-      q4Opens: true,
-    },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: {
+          id: true,
+          name: true,
+          q1Opens: true,
+          q2Opens: true,
+          q3Opens: true,
+          q4Opens: true,
+        },
+      })
+    : null
 
   const [
     totalEmployees,

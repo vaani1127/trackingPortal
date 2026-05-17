@@ -9,6 +9,7 @@ import { formatDistanceToNow, parseISO } from "date-fns"
 import { cn } from "@/lib/utils"
 import { useAppStore } from "@/store/useAppStore"
 import { Badge } from "@/components/ui/badge"
+import { CycleSwitcher } from "@/components/layout/CycleSwitcher"
 
 const PAGE_TITLES: Record<string, string> = {
   "/employee/dashboard": "Dashboard",
@@ -122,6 +123,9 @@ export function Header({ userName, userRole }: HeaderProps) {
 
       {/* Page title */}
       <h1 className="text-lg font-semibold truncate flex-1">{pageTitle}</h1>
+
+      {/* Cycle switcher — only visible when multiple cycles exist */}
+      <CycleSwitcher />
 
       {/* Cycle badge */}
       {cycleBadgeLabel && (

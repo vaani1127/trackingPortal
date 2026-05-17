@@ -4,6 +4,7 @@ import { Target, CheckCircle2, Clock, TrendingUp, ArrowRight, AlertTriangle } fr
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { computeScore } from "@/lib/scoring"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { Button } from "@/components/ui/button"
 import { ProgressBar } from "@/components/goals/ProgressBar"
 import { cn } from "@/lib/utils"
@@ -50,18 +51,20 @@ export default async function EmployeeDashboardPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      q1Opens: true,
-      q2Opens: true,
-      q3Opens: true,
-      q4Opens: true,
-    },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: {
+          id: true,
+          name: true,
+          q1Opens: true,
+          q2Opens: true,
+          q3Opens: true,
+          q4Opens: true,
+        },
+      })
+    : null
 
   const goals = cycle
     ? await prisma.goal.findMany({

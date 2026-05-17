@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { ApprovalInbox } from "./_components/ApprovalInbox"
 
 export const metadata = { title: "Approval Inbox — Atomberg Portal" }
@@ -9,11 +10,13 @@ export default async function ApprovalsPage() {
   const session = await getSession()
   if (!session?.user) redirect("/login")
 
-  const cycle = await prisma.cycle.findFirst({
-    where: { status: { not: "archived" } },
-    orderBy: { createdAt: "desc" },
-    select: { id: true, name: true },
-  })
+  const cycleId = await getSelectedCycleId()
+  const cycle = cycleId
+    ? await prisma.cycle.findUnique({
+        where: { id: cycleId },
+        select: { id: true, name: true },
+      })
+    : null
 
   const directReports = await prisma.user.findMany({
     where: { managerId: session.user.id },

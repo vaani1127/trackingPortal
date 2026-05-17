@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { getSession } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSelectedCycleId } from "@/lib/selected-cycle"
 import { AnalyticsDashboard } from "./_components/AnalyticsDashboard"
 
 export const metadata = { title: "Analytics — Atomberg Portal" }
@@ -25,6 +26,8 @@ export default async function AnalyticsPage() {
     ...new Set(employees.map((e) => e.department).filter(Boolean) as string[]),
   ].sort()
 
+  const selectedCycleId = await getSelectedCycleId()
+
   return (
     <div className="space-y-6">
       <div>
@@ -37,7 +40,7 @@ export default async function AnalyticsPage() {
       <AnalyticsDashboard
         cycles={cycles}
         departments={departments}
-        defaultCycleId={cycles[0]?.id ?? ""}
+        defaultCycleId={selectedCycleId ?? cycles[0]?.id ?? ""}
       />
     </div>
   )
