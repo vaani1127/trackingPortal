@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: Shield,
     title: "Audit Trail",
-    desc: "Every change — creation, approval, lock — is timestamped and logged automatically.",
+    desc: "Every change - creation, approval, lock - is timestamped and logged automatically.",
   },
 ]
 
@@ -41,23 +41,23 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center text-center px-6 py-28 bg-gradient-to-b from-blue-50 to-white">
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-medium text-blue-600 mb-8">
-          <span className="size-1.5 rounded-full bg-blue-500" />
-          FY 2026–27 cycle is active
+      <section className="flex flex-col items-center justify-center text-center px-6 py-16 bg-slate-900">
+        <div className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800 px-3.5 py-1 text-xs font-medium text-slate-300 mb-6">
+          <span className="size-1.5 rounded-full bg-blue-400" />
+          FY 2026-27 cycle is active
         </div>
-        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight text-gray-900 mb-5 max-w-2xl">
+        <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight leading-tight text-white mb-4 max-w-2xl">
           Performance management,{" "}
-          <span className="text-blue-600">simplified.</span>
+          <span className="text-blue-400">simplified.</span>
         </h1>
-        <p className="text-gray-500 text-lg max-w-md mb-10 leading-relaxed">
+        <p className="text-slate-400 text-lg max-w-md mb-8 leading-relaxed">
           Atomberg&apos;s internal portal for goal setting, quarterly check-ins, and team-wide analytics.
         </p>
         <Link
           href="/login"
           className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-3.5 text-sm font-bold text-white hover:bg-orange-600 transition-colors shadow-md"
         >
-          Go to your dashboard
+          Go to login
           <ChevronRight className="size-4" />
         </Link>
       </section>
